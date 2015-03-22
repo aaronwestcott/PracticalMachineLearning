@@ -1,0 +1,95 @@
+---
+title: "PracticalMachineLearningProject"
+author: "Aaron Westcott"
+date: "Wednesday, March 18, 2015"
+output: html_document
+---
+
+
+```{r}
+
+```
+
+Executive Summary
+
+
+
+
+
+Load the dataset
+```{r}
+library(rattle)
+library(caret)
+
+Raw.training = read.csv("pml-training.csv") 
+```
+Count the number of NA's
+```{r}
+NACount<-apply(Raw.training, 2, function(x) length(which(is.na(x))))
+```
+
+replace "NA" with actual NA
+```{r}
+Raw.training[Raw.training == 'NA'] <- NA
+
+Raw.training[Raw.training==""] <- NA
+Raw.training[Raw.training=="#DIV/0!"]=NA
+```
+
+
+remove columns that have more than 1000 NA's
+```{r}
+Raw.training<- Raw.training[,colSums(is.na(Raw.training))<1000]
+```
+
+
+Look for number of unique values
+
+```{r}
+CountUniqueValues<-rapply(Raw.training,function(x)length(unique(x)))
+```
+Look for non numeric data
+```{r}
+ListUniqueValues<-rapply(Raw.training,function(x) (unique(x)))
+```
+
+```{r}
+Raw.training<-Raw.training[-c(1,2,3,4,5,6,7)]
+```
+
+Create training and test sets
+```{r}
+inTrain<-createDataPartition(Raw.training$classe, p=0.6, list=FALSE)
+training<-Raw.training[inTrain,]
+testing<-Raw.training[-inTrain,]
+```
+
+Check for near zero values
+```{r}
+nsv<-nearZeroVar(training, saveMetrics=TRUE)
+```
+
+Fit a random forest
+Thsi took quite a while.
+```{r}
+ModFit2<-train(training$classe~., data=training, method="rf")
+
+```
+Lets look at the accuray of the model
+```{r}
+ModFit2
+```
+
+
+```{r}
+Raw.testing=read.csv("pml-testing.csv")
+```
+
+
+Determine the accuracy of the model against the testing set aka out of sample error
+
+```{r}
+predi<-predict(ModFit2, newdata=testing)
+total<-predi==testing$classe
+sum(total)/length(total)
+```
