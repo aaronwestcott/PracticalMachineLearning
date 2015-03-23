@@ -58,6 +58,9 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 </div>
 
 
+<p>Executive Summary</p>
+<p>The data was examined for nulls, NAs and other invalid values and cleaned up appropriately. I eliminated the columns that had more than 1000 NAs after converting anything that I could find to an NA. This cut down on the number of columns to consider as predictors.</p>
+<p>I split the training set into train and test and then trained a random forest on the training set and eamined the error on the testing set. I did this by getting the percentage of crrect predicitons out of the total. The error was in the order of ~99% correct.</p>
 <p>Load the dataset</p>
 <pre class="r"><code>library(rattle)</code></pre>
 <pre><code>## Warning: package 'rattle' was built under R version 3.1.2</code></pre>
@@ -90,12 +93,12 @@ testing&lt;-Raw.training[-inTrain,]</code></pre>
 <p>Check for near zero values</p>
 <pre class="r"><code>nsv&lt;-nearZeroVar(training, saveMetrics=TRUE)</code></pre>
 <p>Fit a random forest Thsi took quite a while.</p>
-<pre class="r"><code>ModFit2&lt;-train(training$classe~., data=training, method=&quot;rf&quot;)</code></pre>
+<pre class="r"><code>ModFit&lt;-train(training$classe~., data=training, method=&quot;rf&quot;)</code></pre>
 <pre><code>## Loading required package: randomForest
 ## randomForest 4.6-10
 ## Type rfNews() to see new features/changes/bug fixes.</code></pre>
 <p>Lets look at the accuray of the model</p>
-<pre class="r"><code>ModFit2</code></pre>
+<pre class="r"><code>ModFit</code></pre>
 <pre><code>## Random Forest 
 ## 
 ## 11776 samples
@@ -117,8 +120,8 @@ testing&lt;-Raw.training[-inTrain,]</code></pre>
 ## Accuracy was used to select the optimal model using  the largest value.
 ## The final value used for the model was mtry = 27.</code></pre>
 <pre class="r"><code>Raw.testing=read.csv(&quot;pml-testing.csv&quot;)</code></pre>
-<p>Determine the accuracy of the model against the testing set aka out of sample error</p>
-<pre class="r"><code>predi&lt;-predict(ModFit2, newdata=testing)
+<p>Determine the accuracy of the model against the testing set aka out of sample error Use the hold out set set to compare the</p>
+<pre class="r"><code>predi&lt;-predict(ModFit, newdata=testing)
 total&lt;-predi==testing$classe
 sum(total)/length(total)</code></pre>
 <pre><code>## [1] 0.9918</code></pre>
